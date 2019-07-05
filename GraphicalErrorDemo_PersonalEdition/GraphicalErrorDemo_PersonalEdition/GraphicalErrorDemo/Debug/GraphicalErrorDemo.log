@@ -1,0 +1,23 @@
+﻿  GraphicalErrorDemo.cpp
+Q:\Public\Diky\SHIP2019\Tyler Renken\TDE\Common.h(61,39): warning C4244:  '=': conversion from 'double' to 'int', possible loss of data
+Q:\Public\Diky\SHIP2019\Tyler Renken\TDE\DBConnection.h(17,23): warning C4251:  'DBConnection::lastError': class 'std::basic_string<char,std::char_traits<char>,std::allocator<char>>' needs to have dll-interface to be used by clients of class 'DBConnection'
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.21.27702\include\xstring(4231): message :  see declaration of 'std::basic_string<char,std::char_traits<char>,std::allocator<char>>'
+Q:\Public\Diky\SHIP2019\Tyler Renken\TDE\ConnectionClass.h(17,31): warning C4251:  'ConnectionClass::instanceConString': class 'std::basic_string<char,std::char_traits<char>,std::allocator<char>>' needs to have dll-interface to be used by clients of class 'ConnectionClass'
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.21.27702\include\xstring(4231): message :  see declaration of 'std::basic_string<char,std::char_traits<char>,std::allocator<char>>'
+Q:\Public\Diky\SHIP2019\Tyler Renken\TDE\ConnectionClass.h(20,23): warning C4251:  'ConnectionClass::lastError': class 'std::basic_string<char,std::char_traits<char>,std::allocator<char>>' needs to have dll-interface to be used by clients of class 'ConnectionClass'
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.21.27702\include\xstring(4231): message :  see declaration of 'std::basic_string<char,std::char_traits<char>,std::allocator<char>>'
+Q:\Public\Diky\SHIP2019\Tyler Renken\TDE\ConnectionClass.h(21,28): warning C4251:  'ConnectionClass::connectionType': class 'std::basic_string<char,std::char_traits<char>,std::allocator<char>>' needs to have dll-interface to be used by clients of class 'ConnectionClass'
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.21.27702\include\xstring(4231): message :  see declaration of 'std::basic_string<char,std::char_traits<char>,std::allocator<char>>'
+Q:\Public\Diky\SHIP2019\Tyler Renken\TDE\RecordSetClass.h(21,25): warning C4251:  'RecordSetClass::instanceSQL': class 'std::basic_string<char,std::char_traits<char>,std::allocator<char>>' needs to have dll-interface to be used by clients of class 'RecordSetClass'
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.21.27702\include\xstring(4231): message :  see declaration of 'std::basic_string<char,std::char_traits<char>,std::allocator<char>>'
+Q:\Public\Diky\SHIP2019\Tyler Renken\GUI_Demos\GraphicalErrorDemo\GraphicalErrorDemo\GraphicalErrorDemo.cpp(221,27): warning C4018:  '<': signed/unsigned mismatch
+Q:\Public\Diky\SHIP2019\Tyler Renken\GUI_Demos\GraphicalErrorDemo\GraphicalErrorDemo\GraphicalErrorDemo.cpp(228,27): warning C4018:  '<': signed/unsigned mismatch
+Q:\Public\Diky\SHIP2019\Tyler Renken\GUI_Demos\GraphicalErrorDemo\GraphicalErrorDemo\GraphicalErrorDemo.cpp(274,25): warning C4018:  '<': signed/unsigned mismatch
+Q:\Public\Diky\SHIP2019\Tyler Renken\GUI_Demos\GraphicalErrorDemo\GraphicalErrorDemo\GraphicalErrorDemo.cpp(283,26): warning C4018:  '<': signed/unsigned mismatch
+Q:\Public\Diky\SHIP2019\Tyler Renken\GUI_Demos\GraphicalErrorDemo\GraphicalErrorDemo\GraphicalErrorDemo.cpp(326,25): warning C4018:  '<': signed/unsigned mismatch
+Q:\Public\Diky\SHIP2019\Tyler Renken\GUI_Demos\GraphicalErrorDemo\GraphicalErrorDemo\GraphicalErrorDemo.cpp(329,26): warning C4018:  '<': signed/unsigned mismatch
+Q:\Public\Diky\SHIP2019\Tyler Renken\GUI_Demos\GraphicalErrorDemo\GraphicalErrorDemo\GraphicalErrorDemo.cpp(618,29): warning C4018:  '<=': signed/unsigned mismatch
+Q:\Public\Diky\SHIP2019\Tyler Renken\GUI_Demos\GraphicalErrorDemo\GraphicalErrorDemo\GraphicalErrorDemo.cpp(626,51): warning C4018:  '<': signed/unsigned mismatch
+Q:\Public\Diky\SHIP2019\Tyler Renken\GUI_Demos\GraphicalErrorDemo\GraphicalErrorDemo\GraphicalErrorDemo.cpp(800,34): warning C4018:  '>': signed/unsigned mismatch
+Q:\Public\Diky\SHIP2019\Tyler Renken\GUI_Demos\GraphicalErrorDemo\GraphicalErrorDemo\GraphicalErrorDemo.cpp(800,83): warning C4018:  '<': signed/unsigned mismatch
+  GraphicalErrorDemo.vcxproj -> Q:\Public\Diky\SHIP2019\Tyler Renken\GUI_Demos\GraphicalErrorDemo\Debug\GraphicalErrorDemo.exe
