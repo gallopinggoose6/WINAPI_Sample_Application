@@ -1,6 +1,3 @@
-// GraphicalErrorDemo.cpp : Defines the entry point for the application.
-//
-
 #include "framework.h"
 #include "GraphicalErrorDemo.h"
 #include <iostream>
@@ -12,19 +9,34 @@
 #include <strstream>
 #include <Windows.h>
 #include <commdlg.h>
+//#include <RecordSetClass.h>
 
 using namespace std;
 
 #define MAX_LOADSTRING 100
 
-int totalrows = 0;
-vector<HWND*> losTextBoxes;
+/*
+This program is designed to clean up the extracted output of a PDF for later indexing. 
+It takes cleaned input and displays it to the user and highlights possible errors so that the user
+can easily identify and fix errors.
+This program takes input from the other program PdfToData.exe. 
+At the moment the output of this program MAY NOT BE RELIABLE and thus DO NOT DEPEND ON IT until
+further notice.
+
+This program was written for the National Institute for Standardsand Technology during the Summer of 2019
+If you have any questions feel free to contact Tyler Renken(gallopinggoose6@gmail.com).
+
+This program is not complete, and contains several bugs which limits its functionality.
+*/
+
+int totalrows = 0;			//Number of rows of textBoxes
+vector<HWND*> losTextBoxes;	//Defines storage for active user controls being displayed on the screen
 vector<HWND*> losButtons;
 
-struct word {
+struct word {				//Data structure for holding information about the contents of a textbox (edit control)
 	string text;
 	bool active = false;
-	int y = 30;
+	int y = 30;				//Initialized Values that are changed later
 	int x = 10;
 	int error = 0;
 };
@@ -38,25 +50,26 @@ WCHAR szWindowClass[MAX_LOADSTRING];            // the main window class name
 ATOM                MyRegisterClass(HINSTANCE hInstance);
 BOOL                InitInstance(HINSTANCE, int);
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
-LRESULT				SetColors(HDC, HWND);
+LRESULT				SetColors(HDC, HWND);	//Was added later for coloration of edit controls
 INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
+INT_PTR CALLBACK	newRow(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK	TextBoxMessage(HWND, UINT, WPARAM, LPARAM);
 
-vector<word> textBoxes;
+vector<word> textBoxes;		//list of contents of edit controls
 
-vector<string>slice(string src, char sym, char* skip, bool trim, bool singlesep)
-{
+vector<string>slice(string src, char sym, char* skip, bool trim, bool singlesep)	//method for returning list of strings from a large string all separated by a specific char
+{																					//written by Dr. Vladimir Diky
 	vector<string> accum;
 	string tmps;
 
 	for (int i = 0; ; i++)
 	{
-		if (i == src.length() || src[i] == sym )
+		if (i == src.length() || src[i] == sym )		//adds a new substring to accum
 		{
 			if (singlesep || !tmps.empty()) accum.push_back(tmps);
 			tmps.clear();
 		}
-		else
+		else											
 		{
 			bool found = false;
 			if (skip) for (int j = 0; skip[j]; j++) if (skip[j] == src[i]) found = true;
@@ -72,17 +85,16 @@ vector<string>slice(string src, char sym, char* skip, bool trim, bool singlesep)
 		}
 	return accum;
 }
-string trim(string s)
-{
+string trim(string s)	//removes whitespace
+{						//Written by Dr. Vladimir Diky
 	while (!s.empty() && (s[0] == ' ' || s[0] == '\t')) s.erase(0, 1);
 	while (!s.empty() && (s[s.length() - 1] == ' ' || s[0] == '\t')) s.erase(s.length() - 1, 1);
 	return s;
 }
 
-string blankstr = "";
-void ProcessFile(const char* fname)
+void ProcessFile(const char* fname)	//Load contents of file into appropriate data structures for later use
 {
-	ifstream ifile(fname);
+	ifstream ifile(fname);			//initialize input stream
 	int currenty = 0;
 	bool advance = false;
 
@@ -90,23 +102,23 @@ void ProcessFile(const char* fname)
 	{
 		string s;
 		getline(ifile, s);
-		vector<string>values = slice(s, '\t', NULL, true, true);
+		vector<string>values = slice(s, '\t', NULL, true, true);	//Get an array of values
 
-		for (unsigned int i = 0; i < values.size(); ++i) {
+		for (unsigned int i = 0; i < values.size(); ++i) {			//remove some excess tabulation (quite important)
 			if (values.at(i).compare("") == 0) {
 				values.erase(values.begin() + i);
 			}
 		}
-		if (values.size() < 1) continue;
-		/*for (unsigned int i = 0; i < values.size(); ++i) {
+		if (values.size() < 1) continue;	//skip empty lines
+		/*for (unsigned int i = 0; i < values.size(); ++i) {	used for debugging
 			cout << values.at(i) << "|";
-		}*/
-		//cout << "\n";
-		if (values.at(0).compare("") != 0) {
-			if (advance) {
-				word newword2, newword3;
-				newword2.text = blankstr;
-				newword3.text = blankstr;
+		}
+		cout << "\n";*/
+		if (values.at(0).compare("") != 0) {	//Define new first compound
+			if (advance) {						//If a new first compound is being defined right after a previous first compound with no other compounds
+				word newword2, newword3;		//Create some placeholders blank edit controls for the user to fill in
+				newword2.text = "";
+				newword3.text = "";
 				newword2.x = 310;
 				newword3.x = 615;
 				newword2.y = currenty;
@@ -114,94 +126,67 @@ void ProcessFile(const char* fname)
 				textBoxes.push_back(newword2);
 				textBoxes.push_back(newword3);
 			}
-			word newword;
+			word newword;				//create new placeholder for an edit control
 			newword.text = values.at(0);
 			newword.x = 5;
-			currenty += 25;
+			currenty += 25;				//set spacing
 			newword.y = currenty;
 			advance = true;
-			if (values.at(values.size() - 1).compare("!not recognized") == 0) {
-				newword.error = 1;
+			if (values.at(values.size() - 1).compare("!not recognized") == 0) {		//Figure out what errors are pesent
+				newword.error = 1;			//Save the error so that text coloration can be changed
 			}
 			textBoxes.push_back(newword);
-			if (values.at(values.size() - 1).compare("!incomplete previous line") == 0) {
+			if (values.at(values.size() - 1).compare("!incomplete previous line") == 0) {	//Set an error, and then fill in the previous line with placeholders for edit controls
 				textBoxes.at(textBoxes.size() - 2).error = 2;
 				word newword2, newword3;
 				newword2.x = 310;
 				newword3.x = 615;
 				newword2.y = currenty - 25;
 				newword3.y = currenty - 25;
-				newword2.text = blankstr;
-				newword3.text = blankstr;
+				newword2.text = "";
+				newword3.text = "";
 				textBoxes.push_back(newword2);
 				textBoxes.push_back(newword3);
 				getline(ifile, s);
 			}
 		}
 		else {
-			if (advance) {
+			if (advance) {			//Indicate that a second compound or index was located and was recently added
 				advance = false;
 			}
 			else {
-				currenty += 25;
+				currenty += 25;		//Set new spacing so that edit controls don't overlap
 			}
-			word newword, newword2;
+			word newword, newword2;	//set placeholders for edit controls contianing the second compound and the index
 			newword.text = values.at(1);
 			newword.x = 310;
 			newword.y = currenty;
 			newword2.x = 615;
 			newword2.y = currenty;
-			if (values.size() > 2 && values.at(values.size() - 1).compare("!no table number") != 0) {
-				if (values.at(values.size() - 1).compare("!errors") == 0) {
-					if (values.at(1).substr(0, 2).compare("/*") == 0) {
+			if (values.size() > 2 && values.at(values.size() - 1).compare("!no table number") != 0) { //Search for errors
+				if (values.at(values.size() - 1).compare("!errors") == 0) {	//Coloration for error
+					if (values.at(1).substr(0, 2).compare("/*") == 0) {		//error in second compound
 						newword.error = 3;
 					}
-					if (values.at(2).substr(0, 2).compare("/*") == 0) {
-						values.at(2) = values.at(2).substr(2, values.at(2).size() - 4);
+					if (values.at(2).substr(0, 2).compare("/*") == 0) {		//error in index
+						values.at(2) = values.at(2).substr(2, values.at(2).size() - 4); //removal of index markup
 						newword2.error = 3;
 					}
 				}
-				newword2.text = values.at(2);
-				textBoxes.push_back(newword);
+				newword2.text = values.at(2);	//set index text
+				textBoxes.push_back(newword);	//add edit control placeholders
 				textBoxes.push_back(newword2);
 			}
 			else {
-				newword.error = 2;
+				newword.error = 2;				//create blank index edit control placeholder
 				textBoxes.push_back(newword);
-				newword2.text = blankstr;
+				newword2.text = "";
 				textBoxes.push_back(newword2);
 			}
 		}
 	}
 	ifile.close();
-	totalrows = currenty / 25;
-	/*currenty = 0;
-	for (unsigned int i = 0; i < textBoxes.size(); ++i) {
-		if (textBoxes.at(i).y != currenty) {
-			lines.push_back(new structline);
-			lines.at(lines.size() - 1)->y = textBoxes.at(i).y;
-			if (textBoxes.at(i).x == 5) {
-				lines.at(lines.size() - 1)->comp = &textBoxes.at(i);
-			}
-			else {
-				lines.at(lines.size() - 1)->scomp = &textBoxes.at(i);
-			}
-			currenty = textBoxes.at(i).y;
-		}
-		else {
-			if (textBoxes.at(i).x == 310) lines.at(lines.size() - 1)->scomp = &textBoxes.at(i);
-			else if (textBoxes.at(i).x == 615) lines.at(lines.size() - 1)->index = &textBoxes.at(i);
-			else cout << "Error";
-		}
-	}
-	for (unsigned int i = 0; i < lines.size(); ++i) {
-		cout << lines.at(i)->y << " ";
-		if (lines.at(i)->comp != NULL) wcout << lines.at(i)->comp->text << "|\t";
-		if (lines.at(i)->scomp != NULL) wcout << lines.at(i)->scomp->text << "|\t";
-		if (lines.at(i)->index != NULL) wcout << lines.at(i)->index->text << "|\t";
-		cout << "\n";
-	}
-	cout << totalrows << " " << lines.size() << "\n";*/
+	totalrows = currenty / 25;		//calculate number of rows
 }
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
@@ -213,10 +198,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	UNREFERENCED_PARAMETER(lpCmdLine);
 
 	// TODO: Place code here.
-	AllocConsole();
+	AllocConsole();			//Set up debug console
 	FILE* pCout;
 	freopen_s(&pCout, "CONOUT$", "w", stdout);
-	//cout << "I know Kung Fu\n";
+	//cout << "I know Kung Fu\n";		//Test that console is working
 	//ProcessFile("Q:\\Public\\Diky\\SHIP2019\\Tyler Renken\\GUI_Demos\\CompleteOutputMarked.txt");
 	//ProcessFile("Q:\\Public\\Diky\\SHIP2019\\Tyler Renken\\NON-OCR_EXTRACTION_DATA\\Non-Digital-Origin_Target_Output_Samples\\CompleteOutput.txt");
 	// Initialize global strings
@@ -300,21 +285,21 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 
 	return TRUE;
 }
-
+//Define a font for the textboxes that makes it easy for the user to read the content
 LPCSTR font = "Consolas";
 HFONT hfont = CreateFontA(16, 0, 0, 0, 0, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_CHARACTER_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH, font);
 
-void update(HWND hWnd, int yPos, int height) {
-	for (unsigned int foo = 0; foo < textBoxes.size() ; ++foo) {
-		int id = -1;
-		for (unsigned int i = 0; i < losTextBoxes.size(); ++i) {
-			if (foo + 200 == GetDlgCtrlID(*losTextBoxes.at(i))) {
-				id = i;
+void update(HWND hWnd, int yPos, int height) {	//defines edit controls that are visible, and deletes those that aren't.
+	for (unsigned int foo = 0; foo < textBoxes.size() ; ++foo) {	//checks all textboxes
+		int id = -1;								//identification number of an existing edit control
+		for (unsigned int i = 0; i < losTextBoxes.size(); ++i) {	//inefficient search, replace with something else later
+			if (foo + 200 == GetDlgCtrlID(*losTextBoxes.at(i))) {	//The number "200" is there so that no edit controls interfere with other window controls, defined in one of the header files
+				id = i;		//sets up identification number of edit control
 				break;
 			}
 		}
-		if (textBoxes.at(foo).y > yPos - 40 && textBoxes.at(foo).y < yPos + height) {
-			if (id < 0) {
+		if (textBoxes.at(foo).y > yPos - 40 && textBoxes.at(foo).y < yPos + height) { //checks if an edit control should be displayed
+			if (id < 0) {	//creates a new edit control if it is not displayed else does nothing
 				textBoxes.at(foo).active = true;
 				HWND *newTextBox = new HWND(CreateWindow(TEXT("Edit"), wstring(textBoxes.at(foo).text.begin(), textBoxes.at(foo).text.end()).c_str(), WS_CHILD | WS_VISIBLE | WS_BORDER | ES_AUTOHSCROLL, textBoxes.at(foo).x, textBoxes.at(foo).y - yPos, 300, 20, hWnd, (HMENU)(200 + foo), NULL, NULL));
 
@@ -324,32 +309,32 @@ void update(HWND hWnd, int yPos, int height) {
 				losTextBoxes.push_back(newTextBox);
 			}
 		}
-		else {
-			if (id > -1) {
+		else {				//the edit control should not be displayed
+			if (id > -1) {	//if the edit control exists, it deletes it
 				DestroyWindow(*losTextBoxes.at(id));
 				delete losTextBoxes.at(id);
 				textBoxes.at(foo).active = false;
 				losTextBoxes.erase(losTextBoxes.begin() + id);
 			}
 		}
-		if (foo + 1 < textBoxes.size()) {
+		if (foo + 1 < textBoxes.size()) {	//minor improvements to runtime
 			if (textBoxes.at(foo + 1).y > yPos + height && textBoxes.at(foo + 1).active == false) break;
 		}
 		if (foo + 20 < textBoxes.size()) {
 			if (textBoxes.at(foo + 20).y < yPos - 40 && textBoxes.at(foo + 20).active == false) foo += 20;
 		}
 	}
-	for (unsigned int i = 1; i <= totalrows; ++i) {
+	for (unsigned int i = 1; i <= totalrows; ++i) {	//same as above, except for buttons
 		int id = -1;
 		for (unsigned int i2 = 0; i2 < losButtons.size(); ++i2) {
-			if (i + textBoxes.size() == GetDlgCtrlID(*losButtons.at(i2))) {
+			if (i + textBoxes.size() + 200 == GetDlgCtrlID(*losButtons.at(i2))) {
 				id = i2;
 				break;
 			}
 		}
 		if ((signed) (i * 25) > (yPos - 40) && (i * 25) < (yPos + height)) {
 			if (id < 0) {
-				HWND* newButton = new HWND(CreateWindow(L"BUTTON", L"Add Row", WS_CHILD | WS_VISIBLE | WS_TABSTOP | BS_DEFPUSHBUTTON, 920, (i * 25) - yPos, 100, 20, hWnd, (HMENU)(textBoxes.size() + i), NULL, NULL));
+				HWND* newButton = new HWND(CreateWindow(L"BUTTON", L"Add Row", WS_CHILD | WS_VISIBLE | WS_TABSTOP | BS_DEFPUSHBUTTON, 920, (i * 25) - yPos, 100, 20, hWnd, (HMENU)(textBoxes.size() + i + 200), NULL, NULL));
 				losButtons.push_back(newButton);
 			}
 		}
@@ -363,31 +348,30 @@ void update(HWND hWnd, int yPos, int height) {
 	}
 }
 
-void clearBoxes() {
+void clearBoxes() {						//Deletes all controls
 	while (0 < losTextBoxes.size()) {
 		DestroyWindow(*losTextBoxes.at(0));
 		delete losTextBoxes.at(0);
 		losTextBoxes.erase(losTextBoxes.begin());
 	}
-	textBoxes.clear();
 	while (0 < losButtons.size()) {
 		DestroyWindow(*losButtons.at(0));
 		delete losButtons.at(0);
-		losButtons.erase(losTextBoxes.begin());
+		losButtons.erase(losButtons.begin());
 	}
 }
 
-int yypos = 0;
-using convert_type = std::codecvt_utf8<wchar_t>;
+int yypos = 0;						//Define integer for keeping track of scroll bar position
+using convert_type = codecvt_utf8<wchar_t>;		//set up unicode converter
 wstring_convert<convert_type, wchar_t> converter;
 
 int verifyint = 0;
 
-LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)	//standard window message handler
 {
 	HDC hdc;
 	
-	double yChar = 10;
+	double yChar = 10;	//initialize some stuff for the scroll bar
 	int height = 1;
 	SCROLLINFO si;
 
@@ -404,23 +388,22 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	switch (message)
 	{
 	case WM_CREATE:
-		update(hWnd, yypos, height);
-		break;
+		update(hWnd, yypos, height);	//when the window is created update stuff this is old code, as the file used to be hard coded rather than selected
+		break;							//via dialog, and can probably be safely removed
 	case WM_COMMAND:
 	{
 		int wmId = LOWORD(wParam);
 		// Parse the menu selections:
-		cout << "Message";
 		switch (wmId)
 		{
 		case IDM_ABOUT:
-			DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
+			DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);	//open the about box
 			break;
 		case IDM_EXIT:
 			DestroyWindow(hWnd);
 			exit(0);
 			break;
-		case ID_FILE_OPEN:
+		case ID_FILE_OPEN:	//open a file. so far this works flawlessly
 		{
 			char filename[MAX_PATH];
 
@@ -438,10 +421,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			ofn.nMaxFile = MAX_PATH;
 			ofn.lpstrTitle = L"Select a File";
 			ofn.Flags = OFN_DONTADDTORECENT | OFN_FILEMUSTEXIST;
-				
+
 			if (GetOpenFileName(&ofn))
 			{
 				clearBoxes();
+				textBoxes.clear();
 				size_t charsConverted = 0;
 				wcstombs_s(&charsConverted, filename, sizeof(filename), wtext, MAX_PATH);
 				for (unsigned int i = 0; i < strlen(filename); ++i) {
@@ -455,42 +439,77 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				update(hWnd, yypos, height);
 			}
 
-		break;
+			break;
 		}
-		case ID_FILE_SAVE:
-		{
-			ofstream ofile("CleanedOutput.txt");
-			int prev_y = textBoxes.at(0).y;
-			for (unsigned int i = 0; i < textBoxes.size(); ++i) {
-				if (textBoxes.at(i).text.compare("") == 0) continue;
-				if (textBoxes.at(i).y != prev_y) {
-					ofile << "\n";
-					prev_y = textBoxes.at(i).y;
+		case ID_FILE_SAVE:		//Saves the file, other than not checking if there's any information, works pretty well. File name is hard coded
+		{						//replacing the hardcoded file and directory with a dialog would be ideal
+			if (textBoxes.size() != 0) {
+				ofstream ofile("CleanedOutput.txt");
+				int prev_y = textBoxes.at(0).y;
+				for (unsigned int i = 0; i < textBoxes.size(); ++i) {	//writes information to file
+					if (textBoxes.at(i).text.compare("") == 0) continue;//skips empty lines
+					if (textBoxes.at(i).y != prev_y) {					//if there is a new line add a \n character
+						ofile << "\n";
+						prev_y = textBoxes.at(i).y;
+					}
+					if (textBoxes.at(i).x == 5) {					//if there is a first compound, write it and a \n
+						ofile << textBoxes.at(i).text << "\n";
+					}
+					else {
+						ofile << "\t\t" << textBoxes.at(i).text; //write data
+					}
 				}
-				if (textBoxes.at(i).x == 5) {
-					ofile << textBoxes.at(i).text << "\n";
-				}
-				else {
-					ofile << "\t\t" << textBoxes.at(i).text;
-				}
+				ofile.close();
 			}
-			ofile.close();
 			break;
 		}
 		default:
+
 			break;
 		}
-		if (GetDlgCtrlID((HWND)lParam) > 199 && (unsigned) GetDlgCtrlID((HWND)lParam) < 200 + textBoxes.size())
+		if (GetDlgCtrlID((HWND)lParam) > 199 && (unsigned)GetDlgCtrlID((HWND)lParam) < 201 + textBoxes.size())
 		{
-			int bufSize = 10000;
+			int bufSize = 10000;	//If an edit control has been modified, update the text contained within it
 			LPTSTR newstr = new TCHAR[bufSize];
-			GetDlgItemText(hWnd, GetDlgCtrlID((HWND)lParam), newstr, bufSize);
-			textBoxes.at(GetDlgCtrlID((HWND)lParam) - 200).text = converter.to_bytes(newstr);
+			GetDlgItemText(hWnd, GetDlgCtrlID((HWND)lParam), newstr, bufSize);	//Get the user inputted text
+			textBoxes.at(GetDlgCtrlID((HWND)lParam) - 200).text = converter.to_bytes(newstr);	//update the edit control placeholder
 			delete[] newstr;
 			break;
 		}
-		if (GetDlgCtrlID((HWND)lParam) > textBoxes.size() && GetDlgCtrlID((HWND)lParam) < textBoxes.size() + totalrows) {
-			cout << "Click";
+		if (GetDlgCtrlID((HWND)lParam) > textBoxes.size() + 199 && GetDlgCtrlID((HWND)lParam) < textBoxes.size() + totalrows + 201) {
+			unsigned int i = 0, by = (GetDlgCtrlID((HWND)lParam) - textBoxes.size() - 200) * 25;
+			int result = DialogBox(hInst, MAKEINTRESOURCE(IDD_DIALOG1), hWnd, newRow);
+			if (textBoxes.at(textBoxes.size() - 1).y == by) i = textBoxes.size() - 1;
+			else while (textBoxes.at(i).y != by || textBoxes.at(i + 1).y == by) {	//inefficient search algorithm that just gets the job done
+				++i;
+				if (i == textBoxes.size()) {
+					cout << "Error!";
+					return DefWindowProc(hWnd, message, wParam, lParam);
+				}
+			}
+			if (result == 2) break;
+			for (int ii = i + 1; ii < textBoxes.size(); ++ii) {
+				textBoxes.at(ii).y += 25;
+			}
+			++totalrows;
+			word newword2, newword3;		//Create some placeholders blank edit controls for the user to fill in
+			newword2.text = "";
+			newword3.text = "";
+			newword2.x = 310;
+			newword3.x = 615;
+			newword2.y = by + 25;
+			newword3.y = by + 25;
+			textBoxes.insert(textBoxes.begin() + i + 1, newword2);
+			textBoxes.insert(textBoxes.begin() + i + 1, newword3);
+			if (result == 1001) {
+				word newword;
+				newword.text = "";
+				newword.x = 5;
+				newword.y = by + 25;
+				textBoxes.insert(textBoxes.begin() + i + 1, newword);
+			}
+			clearBoxes();
+			update(hWnd, yypos, height);
 		}
 		return DefWindowProc(hWnd, message, wParam, lParam);
 	}
@@ -502,7 +521,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		GetScrollInfo(hWnd, SB_VERT, &si);
 		// Save the position for comparison later on.
 		yPos = si.nPos;
-		switch (LOWORD(wParam))
+		switch (LOWORD(wParam))	//for some reason none of this works with the exception of SB_THUMBTRACK. Don't know why. Most of this was copied from the internet
 		{
 			// User clicked the HOME keyboard key.
 		case SB_TOP:
@@ -560,27 +579,27 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		}
 		return 0;
 	break;
-	case WM_SIZE:
+	case WM_SIZE:	//redraw the controls if the window was resized
 		update(hWnd, yypos, height);
 		break;
-	case WM_CTLCOLOREDIT:
+	case WM_CTLCOLOREDIT:	//change color of edit controls if there is an error other than 0
 	{
 
 		for (unsigned int i = 0; i < textBoxes.size(); ++i) {
 			if (i + 200 == GetDlgCtrlID((HWND)lParam)) {
 				switch (textBoxes.at(i).error) {
-				case 0:
+				case 0:		//no error
 					break;
-				case 1:
+				case 1:		//not recognized first compound
 					SetTextColor((HDC)wParam, RGB(169, 0, 0));
 					break;
-				case 2:
+				case 2:		//missing second compound and/or index
 					SetTextColor((HDC)wParam, RGB(0, 0, 255));
 					break;
-				case 3:
+				case 3:		//not recognized second compound or index
 					SetTextColor((HDC)wParam, RGB(255, 0, 0));
 					break;
-				default:
+				default:	//something went wrong
 					SetTextColor((HDC)wParam, RGB(255, 0, 255));
 				}
 			}
@@ -588,7 +607,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		return (LRESULT)GetStockObject(WHITE_BRUSH);
 		break;
 	}
-	case WM_PAINT:
+	case WM_PAINT:	//Some code here for drawing the labels
 	{
 		PAINTSTRUCT ps;
 		hdc = BeginPaint(hWnd, &ps);
@@ -611,7 +630,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	}
 	break;
 	case WM_DESTROY:
-		_CrtDumpMemoryLeaks();
 		PostQuitMessage(0);
 		break;
 	default:
@@ -636,6 +654,34 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 			return (INT_PTR)TRUE;
 		}
 		break;
+	}
+	return (INT_PTR)FALSE;
+}
+INT_PTR CALLBACK newRow(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
+{
+	UNREFERENCED_PARAMETER(lParam);
+	switch (message)
+	{
+	case WM_INITDIALOG:
+		return (INT_PTR)TRUE;
+
+	case WM_COMMAND:
+		switch (LOWORD(wParam)) {
+		case IDCANCEL:
+		{
+			EndDialog(hDlg, LOWORD(wParam));
+			return 0;
+		}
+		case IDC_BUTTON1:
+		{
+			EndDialog(hDlg, LOWORD(wParam));
+			return 1;
+		}
+		case IDC_BUTTON2:
+			EndDialog(hDlg, LOWORD(wParam));
+			return 2;
+		}
+		  break;
 	}
 	return (INT_PTR)FALSE;
 }
