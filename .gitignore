@@ -1,0 +1,8 @@
+GraphicalErrorDemo_PersonalEdition/GraphicalErrorDemo_PersonalEdition/x64/
+GraphicalErrorDemo_PersonalEdition/GraphicalErrorDemo_
+*.suo
+*.exe
+*.ilk
+*.pdb
+*/Debug/
+*/Release/

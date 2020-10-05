@@ -1,4 +1,14 @@
 ﻿  GraphicalErrorDemo.cpp
+<<<<<<< HEAD
 C:\Users\Tyler\Documents\GitHub\WINAPI_Sample_Application\GraphicalErrorDemo_PersonalEdition\GraphicalErrorDemo_PersonalEdition\GraphicalErrorDemo\GraphicalErrorDemo.cpp(319,33): warning C4312:  'type cast': conversion from 'unsigned int' to 'HMENU' of greater size
 C:\Users\Tyler\Documents\GitHub\WINAPI_Sample_Application\GraphicalErrorDemo_PersonalEdition\GraphicalErrorDemo_PersonalEdition\GraphicalErrorDemo\GraphicalErrorDemo.cpp(342,29): warning C4018:  '<=': signed/unsigned mismatch
   GraphicalErrorDemo.vcxproj -> C:\Users\Tyler\Documents\GitHub\WINAPI_Sample_Application\GraphicalErrorDemo_PersonalEdition\GraphicalErrorDemo_PersonalEdition\x64\Debug\GraphicalErrorDemo.exe
+=======
+C:\Users\gallo\Documents\GitHub\WINAPI_Sample_Application\GraphicalErrorDemo_PersonalEdition\GraphicalErrorDemo_PersonalEdition\GraphicalErrorDemo\GraphicalErrorDemo.cpp(304,33): warning C4312:  'type cast': conversion from 'unsigned int' to 'HMENU' of greater size
+C:\Users\gallo\Documents\GitHub\WINAPI_Sample_Application\GraphicalErrorDemo_PersonalEdition\GraphicalErrorDemo_PersonalEdition\GraphicalErrorDemo\GraphicalErrorDemo.cpp(327,29): warning C4018:  '<=': signed/unsigned mismatch
+C:\Users\gallo\Documents\GitHub\WINAPI_Sample_Application\GraphicalErrorDemo_PersonalEdition\GraphicalErrorDemo_PersonalEdition\GraphicalErrorDemo\GraphicalErrorDemo.cpp(335,51): warning C4018:  '<': signed/unsigned mismatch
+C:\Users\gallo\Documents\GitHub\WINAPI_Sample_Application\GraphicalErrorDemo_PersonalEdition\GraphicalErrorDemo_PersonalEdition\GraphicalErrorDemo\GraphicalErrorDemo.cpp(480,87): warning C4267:  'initializing': conversion from 'size_t' to 'unsigned int', possible loss of data
+C:\Users\gallo\Documents\GitHub\WINAPI_Sample_Application\GraphicalErrorDemo_PersonalEdition\GraphicalErrorDemo_PersonalEdition\GraphicalErrorDemo\GraphicalErrorDemo.cpp(481,15): warning C4244:  'initializing': conversion from 'INT_PTR' to 'int', possible loss of data
+C:\Users\gallo\Documents\GitHub\WINAPI_Sample_Application\GraphicalErrorDemo_PersonalEdition\GraphicalErrorDemo_PersonalEdition\GraphicalErrorDemo\GraphicalErrorDemo.cpp(482,76): warning C4267:  '=': conversion from 'size_t' to 'unsigned int', possible loss of data
+  GraphicalErrorDemo.vcxproj -> C:\Users\gallo\Documents\GitHub\WINAPI_Sample_Application\GraphicalErrorDemo_PersonalEdition\GraphicalErrorDemo_PersonalEdition\x64\Debug\GraphicalErrorDemo.exe
+>>>>>>> 47a882c2655511d4aa8e5fe3bcbfce56aa3bcb82

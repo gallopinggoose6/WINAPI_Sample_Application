@@ -1,2 +1,6 @@
 #TargetFrameworkVersion=v4.0:PlatformToolSet=v142:EnableManagedIncrementalBuild=false:VCToolArchitecture=Native32Bit:WindowsTargetPlatformVersion=10.0
+<<<<<<< HEAD
 Debug|x64|C:\Users\Tyler\Documents\GitHub\WINAPI_Sample_Application\GraphicalErrorDemo_PersonalEdition\GraphicalErrorDemo_PersonalEdition\|
+=======
+Debug|x64|C:\Users\gallo\Documents\GitHub\WINAPI_Sample_Application\GraphicalErrorDemo_PersonalEdition\GraphicalErrorDemo_PersonalEdition\|
+>>>>>>> 47a882c2655511d4aa8e5fe3bcbfce56aa3bcb82
