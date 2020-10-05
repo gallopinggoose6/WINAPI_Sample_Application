@@ -1,1 +1,4 @@
-﻿  GraphicalErrorDemo.vcxproj -> C:\Users\gallo\Documents\HighSchool\Cyperpatriot\redasourcecode\GraphicalErrorDemo_PersonalEdition\GraphicalErrorDemo_PersonalEdition\x64\Debug\GraphicalErrorDemo.exe
+﻿  GraphicalErrorDemo.cpp
+C:\Users\Tyler\Documents\GitHub\WINAPI_Sample_Application\GraphicalErrorDemo_PersonalEdition\GraphicalErrorDemo_PersonalEdition\GraphicalErrorDemo\GraphicalErrorDemo.cpp(319,33): warning C4312:  'type cast': conversion from 'unsigned int' to 'HMENU' of greater size
+C:\Users\Tyler\Documents\GitHub\WINAPI_Sample_Application\GraphicalErrorDemo_PersonalEdition\GraphicalErrorDemo_PersonalEdition\GraphicalErrorDemo\GraphicalErrorDemo.cpp(342,29): warning C4018:  '<=': signed/unsigned mismatch
+  GraphicalErrorDemo.vcxproj -> C:\Users\Tyler\Documents\GitHub\WINAPI_Sample_Application\GraphicalErrorDemo_PersonalEdition\GraphicalErrorDemo_PersonalEdition\x64\Debug\GraphicalErrorDemo.exe

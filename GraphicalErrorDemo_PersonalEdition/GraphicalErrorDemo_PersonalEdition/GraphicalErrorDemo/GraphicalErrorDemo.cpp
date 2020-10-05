@@ -306,8 +306,8 @@ HFONT hfont = CreateFontA(16, 0, 0, 0, 0, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT
 
 void update(HWND hWnd, int yPos, int height) {
 	for (unsigned int foo = 0; foo < textBoxes.size() ; ++foo) {
-		int id = -1;
-		for (unsigned int i = 0; i < losTextBoxes.size(); ++i) {
+		//int id = -1;
+		/*for (unsigned int i = 0; i < losTextBoxes.size(); ++i) {
 			if (foo + 200 == GetDlgCtrlID(*losTextBoxes.at(i))) {
 				id = i;
 				break;
@@ -315,14 +315,14 @@ void update(HWND hWnd, int yPos, int height) {
 		}
 		if (textBoxes.at(foo).y > yPos - 40 && textBoxes.at(foo).y < yPos + height) {
 			if (id < 0) {
-				textBoxes.at(foo).active = true;
+				textBoxes.at(foo).active = true;*/
 				HWND *newTextBox = new HWND(CreateWindow(TEXT("Edit"), wstring(textBoxes.at(foo).text.begin(), textBoxes.at(foo).text.end()).c_str(), WS_CHILD | WS_VISIBLE | WS_BORDER | ES_AUTOHSCROLL, textBoxes.at(foo).x, textBoxes.at(foo).y - yPos, 300, 20, hWnd, (HMENU)(200 + foo), NULL, NULL));
 
 				SendMessage(*newTextBox, WM_SETFONT,
 					(WPARAM) hfont,
 					TRUE);
 				losTextBoxes.push_back(newTextBox);
-			}
+			/*}
 		}
 		else {
 			if (id > -1) {
@@ -337,10 +337,10 @@ void update(HWND hWnd, int yPos, int height) {
 		}
 		if (foo + 20 < textBoxes.size()) {
 			if (textBoxes.at(foo + 20).y < yPos - 40 && textBoxes.at(foo + 20).active == false) foo += 20;
-		}
+		}*/
 	}
 	for (unsigned int i = 1; i <= totalrows; ++i) {
-		int id = -1;
+		/*int id = -1;
 		for (unsigned int i2 = 0; i2 < losButtons.size(); ++i2) {
 			if (i + textBoxes.size() == GetDlgCtrlID(*losButtons.at(i2))) {
 				id = i2;
@@ -348,18 +348,17 @@ void update(HWND hWnd, int yPos, int height) {
 			}
 		}
 		if ((signed) (i * 25) > (yPos - 40) && (i * 25) < (yPos + height)) {
-			if (id < 0) {
+			if (id < 0) {*/
 				HWND* newButton = new HWND(CreateWindow(L"BUTTON", L"Add Row", WS_CHILD | WS_VISIBLE | WS_TABSTOP | BS_DEFPUSHBUTTON, 920, (i * 25) - yPos, 100, 20, hWnd, (HMENU)(textBoxes.size() + i), NULL, NULL));
 				losButtons.push_back(newButton);
-			}
+			/*}
 		}
 		else {
 			if (id > -1) {
 				DestroyWindow(*losButtons.at(id));
 				delete losButtons.at(id);
 				losButtons.erase(losButtons.begin() + id);
-			}
-		}
+			}*/
 	}
 }
 
@@ -409,8 +408,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_COMMAND:
 	{
 		int wmId = LOWORD(wParam);
-		// Parse the menu selections:
-		cout << "Message";
+		
 		switch (wmId)
 		{
 		case IDM_ABOUT:
@@ -611,7 +609,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	}
 	break;
 	case WM_DESTROY:
-		_CrtDumpMemoryLeaks();
 		PostQuitMessage(0);
 		break;
 	default:
